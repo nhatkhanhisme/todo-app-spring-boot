@@ -3,6 +3,7 @@ package com.khanh.todo_app.controller;
 import com.khanh.todo_app.model.Task;
 import com.khanh.todo_app.service.TaskService;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class TaskController {
 
   // POST /api/v1/tasks - Them cong viec moi
   @PostMapping
-  public Task createTask(@RequestBody Task task) {
+  public Task createTask(@Valid @RequestBody Task task) {
     return taskService.createTask(task);
   }
 }

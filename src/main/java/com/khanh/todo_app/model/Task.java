@@ -1,12 +1,17 @@
 package com.khanh.todo_app.model;
 
 import jakarta.persistence.*; // import JPA library
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity // Bao hieu day la mot entity (mot bang trong CSDL)
 @Table(name = "tasks") // Dat ten bang trong CSDL la "tasks"
 public class Task {
   @Id // Danh dau truong nay la khoa chinh
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @NotBlank(message = "Tieu de khong duoc de trong")
+  @Size(min = 3, max = 100, message = "Tieu de phai tu 3 den  100 ky tu")
+  
   private int id;
   private String title;
   private String description;
