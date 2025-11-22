@@ -29,4 +29,20 @@ public class TaskService {
   public Task createTask(Task task) {
     return taskRepository.save(task);
   }
+
+  public Task updateTask(int id, Task taskDetails) {
+
+    // kiem tra task da ton tai chua
+    Task existingTask = taskRepository.findById(id).orElseThrow(
+      () -> new RuntimeException("Task not found")
+    );
+
+    // Cập nhật các trường của công việc
+    if (taskDetails.getTitle() != null) {
+      existingTask.setTitle(taskDetails.getTitle());
+    }
+
+    existingTask.setCompleted(taskDetails.isCompleted());
+    return taskRepository.save(existingTask);
+  }
 }

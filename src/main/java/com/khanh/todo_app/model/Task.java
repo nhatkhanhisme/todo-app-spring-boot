@@ -9,11 +9,9 @@ import jakarta.validation.constraints.Size;
 public class Task {
   @Id // Danh dau truong nay la khoa chinh
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @NotBlank(message = "Tieu de khong duoc de trong")
-  @Size(min = 3, max = 100, message = "Tieu de phai tu 3 den  100 ky tu")
-  
-
   private int id;
+
+  @NotBlank(message = "Tieu de khong duoc de trong")
   @Size(max = 500, message = "Mo ta khong duoc vuot qua 500 ky tu")
   private String title;
   private String description;

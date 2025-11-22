@@ -36,4 +36,10 @@ public class TaskController {
   public Task createTask(@Valid @RequestBody Task task) {
     return taskService.createTask(task);
   }
+
+  // PUT /api/v1/tasks/{id} - Cap nhat cong viec theo ID
+  @PutMapping("/{id}")
+  public Task updateTask(@PathVariable int id, @Valid @RequestBody Task taskDetails) {
+    return taskService.updateTask(id, taskDetails);
+  }
 }
