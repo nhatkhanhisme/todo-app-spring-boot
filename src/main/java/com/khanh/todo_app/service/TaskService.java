@@ -21,6 +21,9 @@ public class TaskService {
   public List<Task> getAllTasks() {
     return taskRepository.findAll();
   }
+  public Task getTaskById(int id) {
+    return taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+  }
 
   // Create a new task
   public Task createTask(Task task) {

@@ -12,7 +12,9 @@ public class Task {
   @NotBlank(message = "Tieu de khong duoc de trong")
   @Size(min = 3, max = 100, message = "Tieu de phai tu 3 den  100 ky tu")
   
+
   private int id;
+  @Size(max = 500, message = "Mo ta khong duoc vuot qua 500 ky tu")
   private String title;
   private String description;
   private boolean completed;

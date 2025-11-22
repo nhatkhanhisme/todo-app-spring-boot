@@ -25,6 +25,11 @@ public class TaskController {
   public List<Task> getAllTasks() {
     return taskService.getAllTasks();
   }
+  // GET /api/v1/tasks/{id} - Lay cong viec theo ID
+  @GetMapping("/{id}")
+  public Task getTaskById(@PathVariable int id) {
+    return taskService.getTaskById(id);
+  }
 
   // POST /api/v1/tasks - Them cong viec moi
   @PostMapping
