@@ -1,62 +1,39 @@
-package com.khanh.todo_app.model;
+package com.khanh.todo_app.dto;
 
-import jakarta.persistence.*; // import JPA library
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@Entity // Bao hieu day la mot entity (mot bang trong CSDL)
-@Table(name = "tasks") // Dat ten bang trong CSDL la "tasks"
-public class Task {
-  @Id // Danh dau truong nay la khoa chinh
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
-
+public class TaskRequestDto {
+ @NotBlank (message = "Tieu de khong duoc de trong")
+ @Size (min = 3, max = 100, message = "Tieu de phai co do dai tu 3 den 100 ky tu")
   private String title;
   private String description;
   private boolean completed;
 
-  public Task() {
+  TaskRequestDto() {
   }
-
-  public Task(int id, String title, String description, boolean completed) {
-
-    this.id = id;
+  public TaskRequestDto(String title, String description, boolean completed) {
     this.title = title;
     this.description = description;
     this.completed = completed;
-  }
-
-  // Getter & Setter methods
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
   }
 
   public String getTitle() {
     return title;
   }
-
   public void setTitle(String title) {
     this.title = title;
   }
-
   public String getDescription() {
     return description;
   }
-
   public void setDescription(String description) {
     this.description = description;
   }
-
   public boolean isCompleted() {
     return completed;
   }
-
   public void setCompleted(boolean completed) {
     this.completed = completed;
   }
-
 }

@@ -1,10 +1,16 @@
 package com.khanh.todo_app.service;
 
+import com.khanh.todo_app.dto.TaskRequestDto;
+import com.khanh.todo_app.dto.TaskResponseDto;
 import com.khanh.todo_app.model.Task;
 import com.khanh.todo_app.repository.TaskRepository;
+
+import jakarta.validation.Valid;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 // đánh dấu để Spring biết đây là nơi xử lý logic nghiệp vụ
 @Service
@@ -18,22 +24,49 @@ public class TaskService {
   }
 
   // Get all tasks
-  public List<Task> getAllTasks() {
-    return taskRepository.findAll();
+  public List<TaskResponseDto> getAllTasks() {
+    // Lay day sach Entity tu DB
+    List<Task> tasks = taskRepository.findAll();
+
+    // Chuyen doi danh sach Entity -> DTO (Mapping)
+    return tasks.stream().map(task -> {
+      TaskResponseDto dto = new TaskResponseDto();
+      dto.setId(task.getId());
+      dto.setTitle(task.getTitle());
+      dto.setCompleted(task.isCompleted());
+      return dto;
+    }).collect(Collectors.toList());
   }
-  public Task getTaskById(int id) {
-    return taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+  // Get task by ID
+  public TaskResponseDto getTaskById(int id) {
+    Task task = taskRepository.findById(id).orElseThrow(
+      () -> new RuntimeException("Task not found")
+    );
+    // Chuyen doi Entity -> DTO (Mapping)
+    return TaskResponseDto.fromEntity(task);
   }
 
   // Create a new task
-  public Task createTask(Task task) {
-    if (task.getTitle() == null || task.getTitle().isEmpty()) {
-      throw new RuntimeException("Title cannot be empty");
-    }
-    return taskRepository.save(task);
+  public TaskResponseDto  createTask(TaskRequestDto requestDto) {
+    // Chuyen doi DTO -> Entity (Mapping)
+    Task newTask = new Task();
+    newTask.setTitle(requestDto.getTitle());
+    newTask.setDescription(requestDto.getDescription());
+    newTask.setCompleted(requestDto.isCompleted());
+
+    // Luu Entity vao DB
+    Task savedTask = taskRepository.save(newTask);
+
+    // Chuyen doi Entity -> DTO (Mapping)
+    TaskResponseDto responseDto = new TaskResponseDto();
+    responseDto.setId( savedTask.getId());
+    responseDto.setTitle( savedTask.getTitle());
+    responseDto.setCompleted( savedTask.isCompleted());
+
+    return responseDto;
   }
 
-  public Task updateTask(int id, Task taskDetails) {
+  public TaskResponseDto updateTask(int id, TaskRequestDto requestDto) {
 
     // kiem tra task da ton tai chua
     Task existingTask = taskRepository.findById(id).orElseThrow(
@@ -41,12 +74,16 @@ public class TaskService {
     );
 
     // Cập nhật các trường của công việc
-    if (taskDetails.getTitle() != null) {
-      existingTask.setTitle(taskDetails.getTitle());
+    if (requestDto.getTitle() != null) {
+      existingTask.setTitle(requestDto.getTitle());
     }
 
-    existingTask.setCompleted(taskDetails.isCompleted());
-    return taskRepository.save(existingTask);
+    existingTask.setCompleted(requestDto.isCompleted());
+    // Luu va tra ve Response DTO
+    Task savedTask = taskRepository.save(existingTask);
+
+    // Chuyen doi Entity -> DTO (Mapping)
+    return TaskResponseDto.fromEntity(savedTask);
   }
 
   public void deleteTask(int id) {
