@@ -27,6 +27,9 @@ public class TaskService {
 
   // Create a new task
   public Task createTask(Task task) {
+    if (task.getTitle() == null || task.getTitle().isEmpty()) {
+      throw new RuntimeException("Title cannot be empty");
+    }
     return taskRepository.save(task);
   }
 
@@ -44,5 +47,12 @@ public class TaskService {
 
     existingTask.setCompleted(taskDetails.isCompleted());
     return taskRepository.save(existingTask);
+  }
+
+  public void deleteTask(int id) {
+    taskRepository.findById(id).orElseThrow(
+      () -> new RuntimeException("Task not found")
+    );
+    taskRepository.deleteById(id);
   }
 }

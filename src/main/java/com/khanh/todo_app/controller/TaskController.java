@@ -42,4 +42,10 @@ public class TaskController {
   public Task updateTask(@PathVariable int id, @Valid @RequestBody Task taskDetails) {
     return taskService.updateTask(id, taskDetails);
   }
+
+  // DELETE /api/v1/tasks/{id} - Xoa cong viec theo ID
+  @DeleteMapping("/{id}")
+  public void deleteTask(@PathVariable int id) {
+    taskService.deleteTask(id);
+  }
 }
