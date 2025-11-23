@@ -2,7 +2,6 @@ package com.khanh.todo_app.controller;
 
 import com.khanh.todo_app.dto.TaskRequestDto;
 import com.khanh.todo_app.dto.TaskResponseDto;
-import com.khanh.todo_app.model.Task;
 import com.khanh.todo_app.service.TaskService;
 
 import org.springframework.http.HttpStatus;
