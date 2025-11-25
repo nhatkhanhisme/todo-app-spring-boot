@@ -1,14 +1,12 @@
 package com.khanh.todo_app.model;
 
 import jakarta.persistence.*; // import JPA library
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
-@Entity // Bao hieu day la mot entity (mot bang trong CSDL)
-@Table(name = "tasks") // Dat ten bang trong CSDL la "tasks"
+@Entity // Mark this class as a JPA entity
+@Table(name = "tasks") // Map this entity to the "tasks" table in the database
 public class Task {
-  @Id // Danh dau truong nay la khoa chinh
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id // Mark this field as the primary key
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-generate the ID value
   private int id;
 
   private String title;

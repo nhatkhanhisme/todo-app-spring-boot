@@ -7,6 +7,7 @@ public class TaskResponseDto {
   private String title;
   private boolean completed;
 
+
   public TaskResponseDto() {
   }
   public TaskResponseDto(int id, String title, boolean completed) {
@@ -14,6 +15,8 @@ public class TaskResponseDto {
     this.title = title;
     this.completed = completed;
   }
+
+  // Getter & Setter methods
   public int getId() {
     return id;
   }
@@ -32,6 +35,8 @@ public class TaskResponseDto {
   public void setCompleted(boolean completed) {
     this.completed = completed;
   }
+
+  // Transfer Object from Entity to DTO
   public static TaskResponseDto fromEntity(Task task) {
     TaskResponseDto dto = new TaskResponseDto();
     dto.setId(task.getId());

@@ -9,10 +9,12 @@ import com.khanh.todo_app.model.User;
 
 @Repository
 public interface  UserRepository extends JpaRepository<User, Long> {
-  // Ham tuy chinh de tim kiem User theo username (can thiet cho dang nhap)
+  // function to find User by username
+  // if found, return User object wrapped in Optional
+  // if not found, return Optional.empty()
   Optional<User> findByUsername(String username);
 
-  // Ham tim kiem User theo email
+  // function to find User by email
   Optional<User> findByEmail(String email);
 }
 

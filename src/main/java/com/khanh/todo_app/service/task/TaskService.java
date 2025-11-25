@@ -1,34 +1,32 @@
-package com.khanh.todo_app.service;
+package com.khanh.todo_app.service.task;
 
 import com.khanh.todo_app.dto.TaskRequestDto;
 import com.khanh.todo_app.dto.TaskResponseDto;
 import com.khanh.todo_app.model.Task;
 import com.khanh.todo_app.repository.TaskRepository;
 
-import jakarta.validation.Valid;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-// đánh dấu để Spring biết đây là nơi xử lý logic nghiệp vụ
+// Service layer for Task management
 @Service
 public class TaskService {
 
   private final TaskRepository taskRepository;
 
-  // Inject repository vào service
+  // Constructor injection of TaskRepository
   public TaskService(TaskRepository taskRepository) {
     this.taskRepository = taskRepository;
   }
 
   // Get all tasks
   public List<TaskResponseDto> getAllTasks() {
-    // Lay day sach Entity tu DB
+    // Get all Task entities from the database
     List<Task> tasks = taskRepository.findAll();
 
-    // Chuyen doi danh sach Entity -> DTO (Mapping)
+    // Transfer Object from Entity to DTO (Mapping)
     return tasks.stream().map(task -> {
       TaskResponseDto dto = new TaskResponseDto();
       dto.setId(task.getId());
@@ -37,18 +35,21 @@ public class TaskService {
       return dto;
     }).collect(Collectors.toList());
   }
+
   // Get task by ID
   public TaskResponseDto getTaskById(int id) {
+    // Find the Task entity by ID
+    // If not found, throw an exception
     Task task = taskRepository.findById(id).orElseThrow(
-      () -> new RuntimeException("Task not found")
-    );
-    // Chuyen doi Entity -> DTO (Mapping)
+        () -> new RuntimeException("Task not found"));
+
+    // Transfer Object from Entity to DTO (Mapping)
     return TaskResponseDto.fromEntity(task);
   }
 
   // Create a new task
-  public TaskResponseDto  createTask(TaskRequestDto requestDto) {
-    // Chuyen doi DTO -> Entity (Mapping)
+  public TaskResponseDto createTask(TaskRequestDto requestDto) {
+    // Transfer Object from DTO -> Entity (Mapping)
     Task newTask = new Task();
     newTask.setTitle(requestDto.getTitle());
     newTask.setDescription(requestDto.getDescription());
@@ -59,9 +60,9 @@ public class TaskService {
 
     // Chuyen doi Entity -> DTO (Mapping)
     TaskResponseDto responseDto = new TaskResponseDto();
-    responseDto.setId( savedTask.getId());
-    responseDto.setTitle( savedTask.getTitle());
-    responseDto.setCompleted( savedTask.isCompleted());
+    responseDto.setId(savedTask.getId());
+    responseDto.setTitle(savedTask.getTitle());
+    responseDto.setCompleted(savedTask.isCompleted());
 
     return responseDto;
   }
@@ -70,8 +71,7 @@ public class TaskService {
 
     // kiem tra task da ton tai chua
     Task existingTask = taskRepository.findById(id).orElseThrow(
-      () -> new RuntimeException("Task not found")
-    );
+        () -> new RuntimeException("Task not found"));
 
     // Cập nhật các trường của công việc
     if (requestDto.getTitle() != null) {
@@ -88,8 +88,7 @@ public class TaskService {
 
   public void deleteTask(int id) {
     taskRepository.findById(id).orElseThrow(
-      () -> new RuntimeException("Task not found")
-    );
+        () -> new RuntimeException("Task not found"));
     taskRepository.deleteById(id);
   }
 }

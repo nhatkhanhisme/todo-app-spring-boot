@@ -34,6 +34,6 @@ public class User {
   @NotBlank (message = "Password khong duoc de trong")
   private String password;
 
-  // Quan trong cho bao mat
-  private String Role; // "USER" hoac "ADMIN"
+  // "USER" or "ADMIN"
+  private String role;
 }
