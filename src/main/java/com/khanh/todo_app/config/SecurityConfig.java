@@ -5,43 +5,73 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.khanh.todo_app.security.jwt.JwtAuthenticationFilter;
+import com.khanh.todo_app.security.jwt.JwtTokenProvider;
 
 @Configuration
-@EnableWebSecurity // Kich hoat tinh nang bao mat web cua Spring
+@EnableWebSecurity
 public class SecurityConfig {
-  // 1. Define security filter chain
+
+  private final JwtTokenProvider jwtTokenProvider;
+  private final UserDetailsService userDetailsService;
+
+  public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
+    this.jwtTokenProvider = jwtTokenProvider;
+    this.userDetailsService = userDetailsService;
+  }
+
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return (web) -> web.ignoring().requestMatchers(
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html"
+    );
+  }
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-        .csrf(csrf -> csrf.disable()) // Vo hieu hoa CSRF de test bang Postman
-        .httpBasic(basic -> basic.disable()) // Vo hieu hoa Basic Auth
-        .formLogin(form -> form.disable()) // Vo hieu hoa Form Login
+        .csrf(csrf -> csrf.disable())
+        .httpBasic(basic -> basic.disable())
+        .formLogin(form -> form.disable())
         .authorizeHttpRequests(auth -> auth
-            // Dung duong dan nay cho Login/Register ma khong can xac thuc
-            .requestMatchers("/api/v1/auth/**", "/error").permitAll() // Cho phep tat ca cac yeu cau truy cap ma khong
-                                                                      // can xac thuc
-            .anyRequest().authenticated() // Bat buoc xac thuc voi cac yeu cau con lai
+            .requestMatchers(
+              "/api/v1/auth/**",
+              "/error"
+            ).permitAll()
+            .anyRequest().authenticated()
         )
         .sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Not use session to store user info
-        );
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+        // Add JWT filter before UsernamePasswordAuthenticationFilter
+        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
     return http.build();
   }
 
-  // 2. Password encoder bean
+  @Bean
+  public JwtAuthenticationFilter jwtAuthenticationFilter() {
+    return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
+  }
+
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(
-    AuthenticationConfiguration config) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
     return config.getAuthenticationManager();
   }
 }
