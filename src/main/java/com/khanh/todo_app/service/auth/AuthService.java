@@ -7,11 +7,10 @@ import com.khanh.todo_app.model.User;
 import com.khanh.todo_app.repository.UserRepository;
 import com.khanh.todo_app.security.jwt.JwtTokenProvider;
 
-import java.util.List;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,8 +24,10 @@ public class AuthService {
   private final AuthenticationManager authenticationManager;
   private final JwtTokenProvider jwtTokenProvider;
 
-  public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-      AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+  public AuthService(UserRepository userRepository,
+      PasswordEncoder passwordEncoder,
+      AuthenticationManager authenticationManager,
+      JwtTokenProvider jwtTokenProvider) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.authenticationManager = authenticationManager;
@@ -36,6 +37,7 @@ public class AuthService {
   // ---- CRUD operations for User entity can be added here ----
   public JwtAuthResponse login(LoginRequestDto loginDto) {
     // Verify username and password
+    // Exception will be handled in controller or global exception handler
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(
             loginDto.getUsername(),
@@ -43,23 +45,27 @@ public class AuthService {
 
     // Set the authentication object in the SecurityContext for the current thread
     SecurityContextHolder.getContext().setAuthentication(authentication);
-
     // Tao JWT Token
     String token = jwtTokenProvider.generateToken(authentication);
 
     return new JwtAuthResponse(token);
   }
 
+  @Transactional // Ensure transaction when saving new user
   public void registerUser(RegisterRequestDto registerRequestDto) {
     // Check if username or email already exists
-    if (userRepository.findByUsername(registerRequestDto.getUsername()).isPresent()) {
+    if (userRepository.existsByUsername(registerRequestDto.getUsername())) {
       throw new IllegalArgumentException("Username da ton tai");
     }
     // Check if email already exists
-    if (userRepository.findByEmail(registerRequestDto.getEmail()).isPresent()) {
+    if (userRepository.existsByEmail(registerRequestDto.getEmail())) {
       throw new IllegalArgumentException("Email da ton tai");
     }
 
+    // Validation password strength
+    if (registerRequestDto.getPassword().length() < 6) {
+      throw new IllegalArgumentException("Mat khau phai co it nhat 6 ky tu");
+    }
     // Create new User entity
     User newUser = new User();
     newUser.setUsername(registerRequestDto.getUsername());
@@ -68,7 +74,5 @@ public class AuthService {
     newUser.setRole("USER"); // Default role
     userRepository.save(newUser);
   }
-  public List<User> getAllUsers() {
-    return userRepository.findAll();
-  }
+
 }

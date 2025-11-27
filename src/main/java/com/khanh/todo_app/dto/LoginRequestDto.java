@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class LoginRequestDto {
   @NotBlank(message = "Username khong duoc de trong")
   private String username;
+
   @NotBlank(message = "Password khong duoc de trong")
   private String password;
 }

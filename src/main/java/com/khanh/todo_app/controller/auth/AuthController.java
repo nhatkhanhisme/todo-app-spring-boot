@@ -25,8 +25,8 @@ public class AuthController {
 
   // POST /api/v1/auth/login
   @PostMapping("/login")
-  public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginRequestDto loginDto) {
-    // Gọi Service để xử lý login và tạo token
+  public ResponseEntity<JwtAuthResponse> login(@Valid @RequestBody LoginRequestDto loginDto) {
+    // Exception will be handled in global exception handler
     JwtAuthResponse response = authService.login(loginDto);
 
     return ResponseEntity.ok(response);
@@ -35,19 +35,7 @@ public class AuthController {
   // POST /api/v1/auth/register - User registration
   @PostMapping("/register")
   public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterRequestDto requestDto) {
-    try {
-      authService.registerUser(requestDto);
-      return ResponseEntity.status(HttpStatus.CREATED).body("Dang ky thanh cong");
-    } catch (RuntimeException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
+    authService.registerUser(requestDto);
+    return new ResponseEntity<>("Dang ky thanh cong", HttpStatus.CREATED);
   }
-  // ...existing code...
-
-  // // GET /api/v1/auth/users - CHỈ dùng để test
-  // @GetMapping("/users")
-  // public ResponseEntity<List<User>> getAllUsers() {
-  // List<User> users = userRepository.findAll();
-  // return ResponseEntity.ok(users);
-  // }
 }

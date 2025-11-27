@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity // Kich hoat tinh nang bao mat web cua Spring
 public class SecurityConfig {
-  // 1. Dinh nghia chuoi filter bao mat
+  // 1. Define security filter chain
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
@@ -26,18 +26,22 @@ public class SecurityConfig {
             .requestMatchers("/api/v1/auth/**", "/error").permitAll() // Cho phep tat ca cac yeu cau truy cap ma khong
                                                                       // can xac thuc
             .anyRequest().authenticated() // Bat buoc xac thuc voi cac yeu cau con lai
+        )
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Not use session to store user info
         );
     return http.build();
   }
 
-  // 2. Dinh nghia thuat toan ma hoa mat khau (BCryptPasswordEncoder)
+  // 2. Password encoder bean
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-    return configuration.getAuthenticationManager();
+  public AuthenticationManager authenticationManager(
+    AuthenticationConfiguration config) throws Exception {
+    return config.getAuthenticationManager();
   }
 }
