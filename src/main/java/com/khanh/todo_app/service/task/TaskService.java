@@ -5,20 +5,23 @@ import com.khanh.todo_app.dto.TaskResponseDto;
 import com.khanh.todo_app.model.Task;
 import com.khanh.todo_app.repository.TaskRepository;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import com.khanh.todo_app.mapper.TaskMapper;
 
 // Service layer for Task management
 @Service
 public class TaskService {
 
   private final TaskRepository taskRepository;
+  private final TaskMapper taskMapper;
 
   // Constructor injection of TaskRepository
-  public TaskService(TaskRepository taskRepository) {
+  public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
     this.taskRepository = taskRepository;
+    this.taskMapper = taskMapper; // constructor injection of TaskMapper
   }
 
   // Get all tasks
@@ -26,14 +29,7 @@ public class TaskService {
     // Get all Task entities from the database
     List<Task> tasks = taskRepository.findAll();
 
-    // Transfer Object from Entity to DTO (Mapping)
-    return tasks.stream().map(task -> {
-      TaskResponseDto dto = new TaskResponseDto();
-      dto.setId(task.getId());
-      dto.setTitle(task.getTitle());
-      dto.setCompleted(task.isCompleted());
-      return dto;
-    }).collect(Collectors.toList());
+    return taskMapper.toDtoList(tasks);
   }
 
   // Get task by ID
@@ -43,47 +39,27 @@ public class TaskService {
     Task task = taskRepository.findById(id).orElseThrow(
         () -> new RuntimeException("Task not found"));
 
-    // Transfer Object from Entity to DTO (Mapping)
-    return TaskResponseDto.fromEntity(task);
+    return taskMapper.toDto(task);
   }
 
   // Create a new task
   public TaskResponseDto createTask(TaskRequestDto requestDto) {
-    // Transfer Object from DTO -> Entity (Mapping)
-    Task newTask = new Task();
-    newTask.setTitle(requestDto.getTitle());
-    newTask.setDescription(requestDto.getDescription());
-    newTask.setCompleted(requestDto.isCompleted());
-
+    Task newTask = taskMapper.toEntity(requestDto);
     // Luu Entity vao DB
     Task savedTask = taskRepository.save(newTask);
 
-    // Chuyen doi Entity -> DTO (Mapping)
-    TaskResponseDto responseDto = new TaskResponseDto();
-    responseDto.setId(savedTask.getId());
-    responseDto.setTitle(savedTask.getTitle());
-    responseDto.setCompleted(savedTask.isCompleted());
-
-    return responseDto;
+    return taskMapper.toDto(savedTask);
   }
 
   public TaskResponseDto updateTask(int id, TaskRequestDto requestDto) {
 
-    // kiem tra task da ton tai chua
+    // check if task exists (404)
     Task existingTask = taskRepository.findById(id).orElseThrow(
         () -> new RuntimeException("Task not found"));
 
-    // Cập nhật các trường của công việc
-    if (requestDto.getTitle() != null) {
-      existingTask.setTitle(requestDto.getTitle());
-    }
-
-    existingTask.setCompleted(requestDto.isCompleted());
-    // Luu va tra ve Response DTO
+    taskMapper.updateEntityFromDto(requestDto, existingTask);
     Task savedTask = taskRepository.save(existingTask);
-
-    // Chuyen doi Entity -> DTO (Mapping)
-    return TaskResponseDto.fromEntity(savedTask);
+    return taskMapper.toDto(savedTask);
   }
 
   public void deleteTask(int id) {
