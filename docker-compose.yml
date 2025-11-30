@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Service 1: MySQL Database (Phải khớp với cấu hình application.properties)
+  db:
+    image: mysql/mysql-server:8.0
+    container_name: todo-mysql-db
+    environment:
+      # Thiết lập User/Pass/DB phải KHỚP HOÀN TOÀN với application.properties
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: todo_db
+      MYSQL_USER: khanh
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3306:3306" # Mở cổng MySQL (Optional)
+    volumes:
+      - db-data:/var/lib/mysql # Lưu trữ dữ liệu lâu dài (Persistent Data)
+
+  # Service 2: Spring Boot Application (Sử dụng Image vừa build)
+  app:
+    image: todo-app-backend:1.0 # Tên Image bạn đã build
+    container_name: todo-spring-app
+    ports:
+      - "8080:8080" # Ánh xạ cổng ứng dụng
+    depends_on:
+      - db # Đảm bảo Database chạy trước ứng dụng
+    environment:
+      # Override config để ứng dụng biết cách kết nối với container DB
+      # QUAN TRỌNG: Host là tên Service: db
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/todo_db
+      SPRING_DATASOURCE_USERNAME: khanh
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+# Định nghĩa Volume
+volumes:
+  db-data:
