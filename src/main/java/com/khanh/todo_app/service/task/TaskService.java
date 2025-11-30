@@ -4,8 +4,6 @@ import com.khanh.todo_app.dto.TaskRequestDto;
 import com.khanh.todo_app.dto.TaskResponseDto;
 import com.khanh.todo_app.model.Task;
 import com.khanh.todo_app.repository.TaskRepository;
-
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +41,7 @@ public class TaskService {
   }
 
   // Create a new task
+  @SuppressWarnings("null")
   public TaskResponseDto createTask(TaskRequestDto requestDto) {
     Task newTask = taskMapper.toEntity(requestDto);
     // Luu Entity vao DB
@@ -58,6 +57,7 @@ public class TaskService {
         () -> new RuntimeException("Task not found"));
 
     taskMapper.updateEntityFromDto(requestDto, existingTask);
+    @SuppressWarnings("null")
     Task savedTask = taskRepository.save(existingTask);
     return taskMapper.toDto(savedTask);
   }
